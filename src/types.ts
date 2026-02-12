@@ -10,6 +10,8 @@ export interface TrackerConfig {
   project: string;
   /** API base endpoint URL */
   endpoint: string;
+  /** Application identifier (default: 'js-client') */
+  app?: string;
   /** Enable automatic click tracking */
   click_tracking?: boolean;
   /** Enable automatic download tracking */

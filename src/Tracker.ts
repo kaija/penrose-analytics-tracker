@@ -414,7 +414,12 @@ export class Tracker {
       domain: this.getPageDomain(),
       uri: this.getPageURI(),
       duration: this.pageStateManager.getActiveDuration(),
-      scroll_depth: pageState.maxScrollDepth
+      scroll_depth: pageState.maxScrollDepth,
+      // Browser & device attributes
+      screen: this.getScreenResolution(),
+      language: this.getBrowserLanguage(),
+      referer: this.getReferer(),
+      app: this.trackerConfig.app || 'js-client'
     };
 
     // Add visitor properties with u_ prefix
@@ -517,6 +522,39 @@ export class Tracker {
   private getPageURI(): string {
     if (typeof window !== 'undefined' && window.location) {
       return window.location.pathname + window.location.search;
+    }
+    return '';
+  }
+
+  /**
+   * Get screen resolution
+   * @private
+   */
+  private getScreenResolution(): string {
+    if (typeof window !== 'undefined' && window.screen) {
+      return `${window.screen.width}x${window.screen.height}`;
+    }
+    return '';
+  }
+
+  /**
+   * Get browser language
+   * @private
+   */
+  private getBrowserLanguage(): string {
+    if (typeof window !== 'undefined' && window.navigator) {
+      return window.navigator.language || '';
+    }
+    return '';
+  }
+
+  /**
+   * Get referrer URL
+   * @private
+   */
+  private getReferer(): string {
+    if (typeof document !== 'undefined') {
+      return document.referrer || '';
     }
     return '';
   }

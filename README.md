@@ -153,6 +153,16 @@ See the [examples](./examples) directory for:
 - E-commerce tracking patterns
 - SaaS application tracking
 
+## Data Collection
+
+The tracker automatically collects various attributes about user behavior, browser environment, and device information. For a complete list of collected attributes, their data types, and which API endpoints they're sent to, see [DATA_COLLECTION.md](./DATA_COLLECTION.md).
+
+Key collected attributes include:
+- **Browser & Device**: Screen resolution, language, referrer, user agent (parsed server-side for browser, OS, device type)
+- **Page Information**: URL, title, domain, scroll depth, time on page
+- **User Interactions**: Clicks, downloads, outgoing links
+- **Session Data**: Visitor ID (cookie), session properties, campaign parameters
+
 ## Development
 
 ```bash
