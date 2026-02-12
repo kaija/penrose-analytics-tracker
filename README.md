@@ -14,8 +14,24 @@ A JavaScript analytics tracking system with event tracking, user identification,
 
 ## Installation
 
+### NPM
+
 ```bash
 npm install analytics-tracker
+```
+
+### CDN
+
+```html
+<script src="https://cdn.example.com/analytics-tracker.min.js"></script>
+<script>
+  const tracker = new AnalyticsTracker({
+    project: 'my-project',
+    endpoint: 'https://analytics.example.com'
+  });
+  
+  tracker.track('page_view');
+</script>
 ```
 
 ## Quick Start
@@ -126,6 +142,8 @@ npm run demo
 
 Open http://localhost:3000 in your browser.
 
+You can also test the CDN version by opening `examples/cdn-example.html` in your browser while the demo server is running.
+
 ## Examples
 
 See the [examples](./examples) directory for:
@@ -138,11 +156,16 @@ See the [examples](./examples) directory for:
 ## Development
 
 ```bash
-npm install          # Install dependencies
-npm run build        # Build the project
-npm test             # Run tests
-npm run test:coverage # Generate coverage report
+npm install       # Install dependencies
+npm run build     # Build TypeScript
+npm run pack      # Pack minified CDN bundle
+npm test          # Run tests
+npm test:coverage # Generate coverage report
 ```
+
+The pack command creates:
+- `dist/analytics-tracker.js` - Unminified bundle (54 KB)
+- `dist/analytics-tracker.min.js` - Minified bundle (19 KB)
 
 ## License
 

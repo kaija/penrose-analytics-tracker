@@ -18,6 +18,14 @@ The demo includes:
 
 ## Example Files
 
+### cdn-example.html
+Simple CDN usage example - no build step required.
+
+Open directly in a browser:
+```bash
+open examples/cdn-example.html
+```
+
 ### basic-usage.ts
 TypeScript examples covering all features.
 
@@ -43,13 +51,12 @@ node examples/nodejs-example.js
 
 ## Quick Examples
 
-### Browser
+### CDN
 
 ```html
-<script type="module">
-  import { Tracker } from './path/to/analytics-tracker';
-  
-  const tracker = new Tracker({
+<script src="https://cdn.example.com/analytics-tracker.min.js"></script>
+<script>
+  const tracker = new AnalyticsTracker({
     project: 'my-project',
     endpoint: 'https://analytics.example.com',
     click_tracking: true

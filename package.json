@@ -14,15 +14,15 @@
   "files": [
     "dist",
     "README.md",
-    "USAGE.md",
     "LICENSE"
   ],
   "scripts": {
     "build": "tsc",
+    "pack": "npm run build && node pack.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run pack && npm test"
   },
   "keywords": [
     "analytics",
@@ -52,6 +52,7 @@
     "fast-check": "^3.15.0",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
+    "terser": "^5.46.0",
     "ts-jest": "^29.1.0",
     "typescript": "^5.3.0"
   }
