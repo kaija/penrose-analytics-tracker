@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Tracker - Browser Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #333;
+    }
+    .section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 5px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .download-link {
+      color: #007bff;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .download-link:hover {
+      text-decoration: underline;
+    }
+    .external-link {
+      color: #28a745;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .external-link:hover {
+      text-decoration: underline;
+    }
+    #console {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-left: 3px solid #007bff;
+      padding-left: 10px;
+    }
+    .log-event {
+      color: #4ec9b0;
+    }
+    .log-identify {
+      color: #ce9178;
+    }
+    input[type="text"],
+    input[type="email"] {
+      padding: 8px;
+      margin: 5px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Analytics Tracker - Browser Example</h1>
+  <p>This page demonstrates the analytics tracker in action. Open your browser's developer console to see the tracking events.</p>
+
+  <!-- Section 1: Manual Event Tracking -->
+  <div class="section">
+    <h2>1. Manual Event Tracking</h2>
+    <p>Click these buttons to send custom tracking events:</p>
+    <button onclick="trackButtonClick('primary')">Primary Button</button>
+    <button onclick="trackButtonClick('secondary')">Secondary Button</button>
+    <button onclick="trackButtonClick('danger')">Danger Button</button>
+  </div>
+
+  <!-- Section 2: User Identification -->
+  <div class="section">
+    <h2>2. User Identification</h2>
+    <p>Enter your information to identify yourself:</p>
+    <input type="text" id="userName" placeholder="Your Name">
+    <input type="email" id="userEmail" placeholder="Your Email">
+    <button onclick="identifyUser()">Identify Me</button>
+  </div>
+
+  <!-- Section 3: Automatic Download Tracking -->
+  <div class="section">
+    <h2>3. Automatic Download Tracking</h2>
+    <p>Click these links to trigger automatic download tracking:</p>
+    <a href="/files/document.pdf" class="download-link" download>Download PDF</a>
+    <a href="/files/data.zip" class="download-link" download>Download ZIP</a>
+    <a href="/files/report.doc" class="download-link" download>Download DOC</a>
+  </div>
+
+  <!-- Section 4: Automatic Outgoing Link Tracking -->
+  <div class="section">
+    <h2>4. Automatic Outgoing Link Tracking</h2>
+    <p>Click these external links to trigger automatic outgoing tracking:</p>
+    <a href="https://github.com" class="external-link" target="_blank">GitHub</a>
+    <a href="https://stackoverflow.com" class="external-link" target="_blank">Stack Overflow</a>
+    <a href="https://developer.mozilla.org" class="external-link" target="_blank">MDN</a>
+  </div>
+
+  <!-- Section 5: Session and Project Properties -->
+  <div class="section">
+    <h2>5. Session and Project Properties</h2>
+    <p>Set properties that persist across events:</p>
+    <button onclick="setSessionProps()">Set Session Properties</button>
+    <button onclick="setProjectProps()">Set Project Properties</button>
+    <button onclick="clearSessionProps()">Clear Session Properties</button>
+  </div>
+
+  <!-- Section 6: Complex Event -->
+  <div class="section">
+    <h2>6. Complex Event with Multiple Properties</h2>
+    <button onclick="trackPurchase()">Simulate Purchase</button>
+  </div>
+
+  <!-- Console Output -->
+  <div class="section">
+    <h2>Event Console</h2>
+    <p>Events being tracked (also check browser console for full details):</p>
+    <div id="console"></div>
+  </div>
+
+  <!-- Load the tracker (in production, use the built version) -->
+  <script type="module">
+    // Import the tracker
+    // In production, you would use: import { Tracker } from 'analytics-tracker';
+    // For this example, we'll create a mock tracker that logs to console
+    
+    class MockTracker {
+      constructor(config) {
+        this.config = config;
+        this.visitorData = {};
+        this.sessionData = {};
+        this.projectData = {};
+        console.log('Tracker initialized with config:', config);
+        this.logToConsole('Tracker initialized', 'info');
+        
+        // Simulate automatic pageview
+        this.track('pageview');
+      }
+
+      track(event, properties = {}) {
+        const eventData = {
+          event,
+          timestamp: Date.now(),
+          url: window.location.href,
+          title: document.title,
+          ...this.visitorData,
+          ...this.sessionData,
+          ...this.projectData,
+          ...properties
+        };
+        console.log('Track event:', eventData);
+        this.logToConsole(`Event: ${event}`, 'event', properties);
+      }
+
+      identify(properties) {
+        this.visitorData = { ...this.visitorData, ...properties };
+        console.log('Identify user:', properties);
+        this.logToConsole('User identified', 'identify', properties);
+      }
+
+      setSessionProperties(properties) {
+        this.sessionData = { ...this.sessionData, ...properties };
+        console.log('Session properties set:', properties);
+        this.logToConsole('Session properties set', 'info', properties);
+      }
+
+      setProjectProperties(properties) {
+        this.projectData = { ...this.projectData, ...properties };
+        console.log('Project properties set:', properties);
+        this.logToConsole('Project properties set', 'info', properties);
+      }
+
+      clearSessionProperties() {
+        this.sessionData = {};
+        console.log('Session properties cleared');
+        this.logToConsole('Session properties cleared', 'info');
+      }
+
+      logToConsole(message, type, data = null) {
+        const consoleEl = document.getElementById('console');
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        
+        let text = `[${new Date().toLocaleTimeString()}] ${message}`;
+        if (data) {
+          text += `: ${JSON.stringify(data, null, 2)}`;
+        }
+        
+        entry.textContent = text;
+        consoleEl.appendChild(entry);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+    }
+
+    // Initialize tracker
+    window.tracker = new MockTracker({
+      project: 'demo-project',
+      endpoint: 'https://analytics.example.com',
+      click_tracking: true,
+      download_tracking: true,
+      outgoing_tracking: true
+    });
+
+    // Make functions available globally
+    window.trackButtonClick = function(buttonType) {
+      tracker.track('button_click', {
+        button_type: buttonType,
+        page_section: 'demo'
+      });
+    };
+
+    window.identifyUser = function() {
+      const name = document.getElementById('userName').value;
+      const email = document.getElementById('userEmail').value;
+      
+      if (name || email) {
+        tracker.identify({
+          name: name || undefined,
+          email: email || undefined
+        });
+      } else {
+        alert('Please enter at least a name or email');
+      }
+    };
+
+    window.setSessionProps = function() {
+      tracker.setSessionProperties({
+        session_id: 'sess_' + Math.random().toString(36).substr(2, 9),
+        landing_page: window.location.pathname,
+        referrer: document.referrer || 'direct'
+      });
+    };
+
+    window.setProjectProps = function() {
+      tracker.setProjectProperties({
+        app_version: '1.0.0',
+        environment: 'demo',
+        platform: 'web'
+      });
+    };
+
+    window.clearSessionProps = function() {
+      tracker.clearSessionProperties();
+    };
+
+    window.trackPurchase = function() {
+      tracker.track('purchase', {
+        order_id: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+        total: 99.99,
+        currency: 'USD',
+        items_count: 3,
+        payment_method: 'credit_card'
+      });
+    };
+
+    // Track scroll depth
+    let maxScroll = 0;
+    window.addEventListener('scroll', () => {
+      const scrollPercent = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100;
+      if (scrollPercent > maxScroll) {
+        maxScroll = scrollPercent;
+        console.log('Max scroll depth:', Math.round(maxScroll) + '%');
+      }
+    });
+  </script>
+
+  <!-- Add some content to enable scrolling -->
+  <div class="section">
+    <h2>Scroll Tracking</h2>
+    <p>Scroll down this page to see scroll depth tracking in action (check console).</p>
+    <div style="height: 500px; background: linear-gradient(to bottom, #f5f5f5, #e0e0e0); display: flex; align-items: center; justify-content: center; border-radius: 5px;">
+      <p style="font-size: 24px; color: #666;">Scroll Content Area</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>More Content</h2>
+    <p>Keep scrolling to increase your scroll depth percentage...</p>
+    <div style="height: 400px; background: linear-gradient(to bottom, #e0e0e0, #d0d0d0); display: flex; align-items: center; justify-content: center; border-radius: 5px;">
+      <p style="font-size: 24px; color: #666;">More Content</p>
+    </div>
+  </div>
+
+  <footer style="text-align: center; padding: 20px; color: #666; margin-top: 50px;">
+    <p>Analytics Tracker Demo - Check your browser console for detailed tracking information</p>
+  </footer>
+</body>
+</html>
