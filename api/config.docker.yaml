@@ -1,0 +1,37 @@
+# Docker-specific configuration for Rust Analytics API
+# This configuration is optimized for the docker-compose setup
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+streaming:
+  # Service type: kafka, kinesis, or pulsar
+  service_type: kafka
+  
+  # Kafka configuration (default for docker-compose)
+  kafka:
+    brokers:
+      - "kafka:29092"  # Use internal Docker network hostname
+    topic: "analytics-events"
+  
+  # Kinesis configuration (for LocalStack)
+  # Uncomment and update config.yaml when using --profile kinesis
+  # kinesis:
+  #   region: "us-east-1"
+  #   stream_name: "analytics-events"
+  #   endpoint: "http://localstack:4566"  # LocalStack endpoint
+  
+  # Pulsar configuration
+  # Uncomment and update config.yaml when using --profile pulsar
+  # pulsar:
+  #   url: "pulsar://pulsar:6650"
+  #   topic: "analytics-events"
+
+geoip:
+  # Path to MaxMind GeoIP database file (mounted volume)
+  database_path: "/app/data/GeoLite2-City.mmdb"
+
+logging:
+  # Log level: trace, debug, info, warn, error
+  level: "info"

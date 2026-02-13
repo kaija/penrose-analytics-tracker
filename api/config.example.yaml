@@ -1,0 +1,202 @@
+# ============================================================================
+# Rust Analytics API - Example Configuration File
+# ============================================================================
+#
+# This file contains all available configuration options for the Rust Analytics API.
+# Copy this file to config.yaml and adjust values for your environment.
+#
+# The API receives analytics events from JavaScript clients, enriches them with
+# geolocation and user-agent data, and streams them to configurable message brokers.
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Server Configuration
+# ----------------------------------------------------------------------------
+# HTTP server settings for the analytics API endpoints
+server:
+  # Host address to bind the server to
+  # - "0.0.0.0" binds to all network interfaces (recommended for Docker)
+  # - "127.0.0.1" binds only to localhost (recommended for local development)
+  host: "0.0.0.0"
+  
+  # Port number for the HTTP server
+  # Default: 8080
+  # Must be a non-zero value between 1 and 65535
+  port: 8080
+
+# ----------------------------------------------------------------------------
+# Streaming Service Configuration
+# ----------------------------------------------------------------------------
+# Configure which message streaming service receives processed analytics events
+streaming:
+  # Service type: kafka, kinesis, or pulsar
+  # This determines which streaming backend will be used
+  # Only one service type can be active at a time
+  service_type: kafka
+  
+  # -------------------------
+  # Apache Kafka Configuration
+  # -------------------------
+  # Used when service_type is "kafka"
+  # Kafka is a distributed streaming platform ideal for high-throughput event processing
+  kafka:
+    # List of Kafka broker addresses
+    # Format: "host:port"
+    # Multiple brokers provide redundancy and load balancing
+    brokers:
+      - "localhost:9092"
+      # - "kafka-broker-2:9092"
+      # - "kafka-broker-3:9092"
+    
+    # Kafka topic name where events will be published
+    # The topic must exist or Kafka must be configured to auto-create topics
+    topic: "analytics-events"
+  
+  # -------------------------
+  # AWS Kinesis Configuration
+  # -------------------------
+  # Used when service_type is "kinesis"
+  # Kinesis is AWS's managed streaming service for real-time data processing
+  # Note: AWS credentials should be configured via environment variables or IAM roles
+  # kinesis:
+  #   # AWS region where the Kinesis stream is located
+  #   # Examples: us-east-1, us-west-2, eu-west-1, ap-southeast-1
+  #   region: "us-east-1"
+  #   
+  #   # Name of the Kinesis stream
+  #   # The stream must exist before starting the API
+  #   stream_name: "analytics-events"
+  
+  # -------------------------
+  # Apache Pulsar Configuration
+  # -------------------------
+  # Used when service_type is "pulsar"
+  # Pulsar is a cloud-native distributed messaging and streaming platform
+  # pulsar:
+  #   # Pulsar broker URL
+  #   # Format: pulsar://host:port or pulsar+ssl://host:port for TLS
+  #   # Default port: 6650 (binary protocol)
+  #   url: "pulsar://localhost:6650"
+  #   
+  #   # Pulsar topic name where events will be published
+  #   # Format: persistent://tenant/namespace/topic or non-persistent://tenant/namespace/topic
+  #   # Simple format: just the topic name (uses default tenant/namespace)
+  #   topic: "analytics-events"
+
+# ----------------------------------------------------------------------------
+# GeoIP Configuration
+# ----------------------------------------------------------------------------
+# MaxMind GeoIP database for IP address geolocation enrichment
+geoip:
+  # Path to the MaxMind GeoIP database file
+  # Supported formats: GeoLite2-City.mmdb or GeoIP2-City.mmdb
+  # 
+  # Download GeoLite2 (free) from:
+  # https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+  # 
+  # The database is loaded into memory at startup for fast lookups
+  # File size is typically 50-70 MB for GeoLite2-City
+  # 
+  # The database provides:
+  # - Country, region, and city names
+  # - Latitude and longitude coordinates
+  # - Support for both IPv4 and IPv6 addresses
+  database_path: "/path/to/GeoLite2-City.mmdb"
+
+# ----------------------------------------------------------------------------
+# Logging Configuration
+# ----------------------------------------------------------------------------
+# Structured logging settings for monitoring and debugging
+logging:
+  # Log level controls the verbosity of log output
+  # Available levels (from most to least verbose):
+  # - trace: Very detailed debugging information (not recommended for production)
+  # - debug: Detailed debugging information useful during development
+  # - info: General informational messages about application operation (recommended for production)
+  # - warn: Warning messages for potentially problematic situations
+  # - error: Error messages for failures that don't stop the application
+  # 
+  # Logs are output in structured JSON format for easy parsing and analysis
+  # Each log entry includes timestamp, level, message, and contextual fields
+  level: "info"
+
+# ============================================================================
+# Configuration Examples for Different Environments
+# ============================================================================
+
+# Example 1: Local Development with Kafka
+# ----------------------------------------
+# server:
+#   host: "127.0.0.1"
+#   port: 8080
+# streaming:
+#   service_type: kafka
+#   kafka:
+#     brokers: ["localhost:9092"]
+#     topic: "analytics-events-dev"
+# geoip:
+#   database_path: "./GeoLite2-City.mmdb"
+# logging:
+#   level: "debug"
+
+# Example 2: Production with AWS Kinesis
+# ---------------------------------------
+# server:
+#   host: "0.0.0.0"
+#   port: 8080
+# streaming:
+#   service_type: kinesis
+#   kinesis:
+#     region: "us-east-1"
+#     stream_name: "analytics-events-prod"
+# geoip:
+#   database_path: "/data/GeoLite2-City.mmdb"
+# logging:
+#   level: "info"
+
+# Example 3: Docker Deployment with Pulsar
+# -----------------------------------------
+# server:
+#   host: "0.0.0.0"
+#   port: 8080
+# streaming:
+#   service_type: pulsar
+#   pulsar:
+#     url: "pulsar://pulsar-broker:6650"
+#     topic: "persistent://public/default/analytics-events"
+# geoip:
+#   database_path: "/data/GeoLite2-City.mmdb"
+# logging:
+#   level: "info"
+
+# ============================================================================
+# Notes and Best Practices
+# ============================================================================
+#
+# 1. Security:
+#    - Never commit config.yaml with production credentials to version control
+#    - Use environment variables or secrets management for sensitive data
+#    - For AWS Kinesis, use IAM roles instead of hardcoded credentials
+#
+# 2. Performance:
+#    - The GeoIP database is loaded into memory at startup (50-70 MB)
+#    - Streaming connections are pooled and reused for efficiency
+#    - The API uses async I/O for high concurrency
+#
+# 3. Monitoring:
+#    - Set logging level to "info" in production
+#    - Use "debug" level only for troubleshooting
+#    - Logs are in JSON format for easy integration with log aggregation tools
+#
+# 4. High Availability:
+#    - Configure multiple Kafka brokers for redundancy
+#    - Use AWS Kinesis with multiple shards for scalability
+#    - Deploy multiple API instances behind a load balancer
+#
+# 5. GeoIP Database Updates:
+#    - MaxMind updates GeoLite2 databases weekly
+#    - Restart the API after updating the database file
+#    - Consider automating database updates with a cron job
+#
+# ============================================================================

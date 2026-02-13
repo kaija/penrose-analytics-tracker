@@ -1,0 +1,53 @@
+[package]
+name = "rust-analytics-api"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "rust-analytics-api"
+path = "src/main.rs"
+
+[lib]
+name = "api"
+path = "src/lib.rs"
+
+[dependencies]
+# Web framework and async runtime
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+
+# User-Agent parsing
+woothee = "0.13"
+
+# GeoIP lookup
+maxminddb = "0.24"
+
+# Streaming services
+rdkafka = { version = "0.36", features = ["cmake-build"] }
+aws-config = "1.0"
+aws-sdk-kinesis = "1.0"
+pulsar = "6.0"
+
+# Async trait support
+async-trait = "0.1"
+
+# Date and time utilities
+chrono = "0.4"
+
+[dev-dependencies]
+# Property-based testing
+quickcheck = "1.0"
+quickcheck_macros = "1.0"
+proptest = "1.4"
+
+# Testing utilities
+tempfile = "3.8"
