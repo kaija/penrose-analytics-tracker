@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Analytics API Service
   analytics-api:
@@ -10,8 +8,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./config.yaml:/app/config.yaml:ro
-      - ./data/GeoLite2-City.mmdb:/app/data/GeoLite2-City.mmdb:ro
+      - ./config.docker.yaml:/app/config.yaml:ro
+      # Optional: Mount GeoIP database if available
+      # - ./data/GeoLite2-City.mmdb:/app/data/GeoLite2-City.mmdb:ro
     environment:
       - RUST_LOG=info
     depends_on:
@@ -25,6 +24,7 @@ services:
   kafka:
     image: apache/kafka:4.0.0
     container_name: kafka
+    user: root
     ports:
       - "9092:9092"
     environment:
@@ -48,15 +48,17 @@ services:
       
       # Log settings
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     volumes:
       - kafka-data:/tmp/kraft-combined-logs
     networks:
       - analytics-network
     healthcheck:
-      test: ["CMD-SHELL", "kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   # Kafka UI for monitoring

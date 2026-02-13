@@ -1,11 +1,13 @@
 # Multi-stage Dockerfile for Rust Analytics API
 # Stage 1: Builder - Compile the Rust application
-FROM rustlang/rust:nightly-slim as builder
+FROM rustlang/rust:nightly-slim AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libssl-dev \
+    libcurl4-openssl-dev \
+    protobuf-compiler \
     cmake \
     g++ \
     && rm -rf /var/lib/apt/lists/*
@@ -23,12 +25,13 @@ COPY src ./src
 RUN cargo build --release --bin rust-analytics-api
 
 # Stage 2: Runtime - Minimal image with compiled binary
-FROM debian:bookworm-slim
+FROM debian:sid-slim
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     libssl3 \
+    libcurl4 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user

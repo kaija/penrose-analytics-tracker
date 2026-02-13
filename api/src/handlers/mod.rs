@@ -24,8 +24,8 @@ use crate::transformer::transform_params;
 pub struct AppState {
     /// Streaming service for sending events to Kafka/Kinesis/Pulsar
     pub streaming_service: Arc<dyn StreamingService>,
-    /// GeoIP lookup service for IP address geolocation
-    pub geoip_lookup: Arc<GeoIpLookup>,
+    /// GeoIP lookup service for IP address geolocation (optional)
+    pub geoip_lookup: Option<Arc<GeoIpLookup>>,
     /// User-Agent parser for extracting browser/OS/device information
     pub user_agent_parser: Arc<dyn UserAgentParser>,
     /// Application configuration
@@ -45,7 +45,7 @@ impl AppState {
     /// A new AppState instance with all services wrapped in Arc for shared ownership
     pub fn new(
         streaming_service: Arc<dyn StreamingService>,
-        geoip_lookup: Arc<GeoIpLookup>,
+        geoip_lookup: Option<Arc<GeoIpLookup>>,
         user_agent_parser: Arc<dyn UserAgentParser>,
         config: Arc<Config>,
     ) -> Self {
@@ -57,32 +57,16 @@ impl AppState {
         }
     }
 
-    /// Create a new AppState instance with a mock GeoIP lookup for testing
-    /// This is a helper method for tests that don't have a real GeoIP database
+    /// Create a new AppState instance for testing without GeoIP
     #[cfg(test)]
-    pub fn new_with_mock_geoip<T>(
+    pub fn new_for_testing(
         streaming_service: Arc<dyn StreamingService>,
-        geoip_lookup: Arc<T>,
         user_agent_parser: Arc<dyn UserAgentParser>,
         config: Arc<Config>,
-    ) -> Self
-    where
-        T: 'static,
-    {
-        // For testing, we'll create a minimal GeoIpLookup that won't be used
-        // The actual lookup will be done by the mock passed in
-        // This is a workaround since we can't easily mock the GeoIpLookup trait
-        let dummy_geoip = Arc::new(
-            GeoIpLookup::new("nonexistent.mmdb").unwrap_or_else(|_| {
-                // Create a minimal GeoIpLookup for testing
-                // In tests, we'll intercept the lookup before it reaches here
-                panic!("GeoIP database not available - this should not be called in tests")
-            })
-        );
-        
+    ) -> Self {
         Self {
             streaming_service,
-            geoip_lookup: dummy_geoip,
+            geoip_lookup: None,
             user_agent_parser,
             config,
         }
@@ -292,19 +276,23 @@ pub async fn track_handler(
         client_ip = %client_ip,
         "Enriching with GeoIP lookup"
     );
-    let geo_location = app_state.geoip_lookup.lookup(client_ip);
-    event.country = geo_location.country.clone();
-    event.region = geo_location.region.clone();
-    event.city = geo_location.city.clone();
-    event.latitude = geo_location.latitude;
-    event.longitude = geo_location.longitude;
-    
-    tracing::debug!(
-        endpoint = "/track/",
-        country = ?geo_location.country,
-        city = ?geo_location.city,
-        "GeoIP enrichment complete"
-    );
+    if let Some(geoip) = &app_state.geoip_lookup {
+        let geo_location = geoip.lookup(client_ip);
+        event.country = geo_location.country.clone();
+        event.region = geo_location.region.clone();
+        event.city = geo_location.city.clone();
+        event.latitude = geo_location.latitude;
+        event.longitude = geo_location.longitude;
+        
+        tracing::debug!(
+            endpoint = "/track/",
+            country = ?geo_location.country,
+            city = ?geo_location.city,
+            "GeoIP enrichment complete"
+        );
+    } else {
+        tracing::debug!("GeoIP lookup skipped (not configured)");
+    }
 
     // Step 7: Send to streaming service
     tracing::debug!(
@@ -455,19 +443,23 @@ pub async fn identify_handler(
         client_ip = %client_ip,
         "Enriching with GeoIP lookup"
     );
-    let geo_location = app_state.geoip_lookup.lookup(client_ip);
-    event.country = geo_location.country.clone();
-    event.region = geo_location.region.clone();
-    event.city = geo_location.city.clone();
-    event.latitude = geo_location.latitude;
-    event.longitude = geo_location.longitude;
-    
-    tracing::debug!(
-        endpoint = "/identify",
-        country = ?geo_location.country,
-        city = ?geo_location.city,
-        "GeoIP enrichment complete"
-    );
+    if let Some(geoip) = &app_state.geoip_lookup {
+        let geo_location = geoip.lookup(client_ip);
+        event.country = geo_location.country.clone();
+        event.region = geo_location.region.clone();
+        event.city = geo_location.city.clone();
+        event.latitude = geo_location.latitude;
+        event.longitude = geo_location.longitude;
+        
+        tracing::debug!(
+            endpoint = "/identify",
+            country = ?geo_location.country,
+            city = ?geo_location.city,
+            "GeoIP enrichment complete"
+        );
+    } else {
+        tracing::debug!("GeoIP lookup skipped (not configured)");
+    }
 
     // Step 7: Send to streaming service
     tracing::debug!(
@@ -609,19 +601,23 @@ pub async fn update_handler(
         client_ip = %client_ip,
         "Enriching with GeoIP lookup"
     );
-    let geo_location = app_state.geoip_lookup.lookup(client_ip);
-    event.country = geo_location.country.clone();
-    event.region = geo_location.region.clone();
-    event.city = geo_location.city.clone();
-    event.latitude = geo_location.latitude;
-    event.longitude = geo_location.longitude;
-    
-    tracing::debug!(
-        endpoint = "/update",
-        country = ?geo_location.country,
-        city = ?geo_location.city,
-        "GeoIP enrichment complete"
-    );
+    if let Some(geoip) = &app_state.geoip_lookup {
+        let geo_location = geoip.lookup(client_ip);
+        event.country = geo_location.country.clone();
+        event.region = geo_location.region.clone();
+        event.city = geo_location.city.clone();
+        event.latitude = geo_location.latitude;
+        event.longitude = geo_location.longitude;
+        
+        tracing::debug!(
+            endpoint = "/update",
+            country = ?geo_location.country,
+            city = ?geo_location.city,
+            "GeoIP enrichment complete"
+        );
+    } else {
+        tracing::debug!("GeoIP lookup skipped (not configured)");
+    }
 
     // Step 7: Send to streaming service
     tracing::debug!(

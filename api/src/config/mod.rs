@@ -189,10 +189,8 @@ fn validate_config(config: &Config) -> Result<(), ConfigError> {
         }
     }
     
-    // Validate GeoIP config
-    if config.geoip.database_path.is_empty() {
-        return Err(ConfigError::MissingFields("geoip.database_path is empty".to_string()));
-    }
+    // GeoIP config is optional - empty path means GeoIP enrichment is disabled
+    // No validation needed
     
     // Validate logging config
     let valid_levels = ["trace", "debug", "info", "warn", "error"];

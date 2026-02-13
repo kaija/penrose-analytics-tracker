@@ -12,7 +12,7 @@ streaming:
   # Kafka configuration (default for docker-compose)
   kafka:
     brokers:
-      - "kafka:29092"  # Use internal Docker network hostname
+      - "kafka:9092"  # Use internal Docker network hostname
     topic: "analytics-events"
   
   # Kinesis configuration (for LocalStack)
@@ -30,7 +30,9 @@ streaming:
 
 geoip:
   # Path to MaxMind GeoIP database file (mounted volume)
-  database_path: "/app/data/GeoLite2-City.mmdb"
+  # Note: GeoIP enrichment will be skipped if file doesn't exist
+  # Download from: https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+  database_path: ""
 
 logging:
   # Log level: trace, debug, info, warn, error

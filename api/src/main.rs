@@ -39,25 +39,29 @@ async fn main() {
         geoip_database = %config.geoip.database_path
     );
 
-    // Initialize GeoIP lookup with database
+    // Initialize GeoIP lookup with database (optional)
     // Validates: Requirement 6.1, 13.4
-    tracing::info!(
-        database_path = %config.geoip.database_path,
-        "Loading GeoIP database into memory"
-    );
-    let geoip_lookup = match GeoIpLookup::new(&config.geoip.database_path) {
-        Ok(lookup) => {
-            tracing::info!("GeoIP database loaded successfully");
-            Arc::new(lookup)
-        }
-        Err(e) => {
-            tracing::error!(
-                error = %e,
-                database_path = %config.geoip.database_path,
-                "Failed to load GeoIP database"
-            );
-            eprintln!("Failed to load GeoIP database: {}", e);
-            std::process::exit(1);
+    let geoip_lookup = if config.geoip.database_path.is_empty() {
+        tracing::warn!("GeoIP database path not configured, geolocation enrichment will be skipped");
+        None
+    } else {
+        tracing::info!(
+            database_path = %config.geoip.database_path,
+            "Loading GeoIP database into memory"
+        );
+        match GeoIpLookup::new(&config.geoip.database_path) {
+            Ok(lookup) => {
+                tracing::info!("GeoIP database loaded successfully");
+                Some(Arc::new(lookup))
+            }
+            Err(e) => {
+                tracing::warn!(
+                    error = %e,
+                    database_path = %config.geoip.database_path,
+                    "Failed to load GeoIP database, geolocation enrichment will be skipped"
+                );
+                None
+            }
         }
     };
 

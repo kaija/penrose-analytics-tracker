@@ -79,22 +79,12 @@ fn create_test_app_state() -> AppState {
     let user_agent_parser: Arc<dyn UserAgentParser> = Arc::new(WootheeParser::new());
     let config = Arc::new(create_test_config());
     
-    // Create a mock GeoIpLookup - we can't use the real one without a database file
-    // For this test, we'll just verify the types are correct
-    // In a real integration test, you would use a real GeoIP database
-    
-    // Note: We can't create a real GeoIpLookup without a database file,
-    // so we'll skip it for this test. The router test focuses on route configuration.
-    
-    // For now, we'll create a minimal AppState structure
-    // In production, all components would be properly initialized
+    // GeoIP is optional in tests
+    let geoip_lookup = None;
     
     AppState::new(
         streaming_service,
-        Arc::new(GeoIpLookup::new("nonexistent.mmdb").unwrap_or_else(|_| {
-            // This will fail, but we're just testing the router structure
-            panic!("GeoIP database not available for testing")
-        })),
+        geoip_lookup,
         user_agent_parser,
         config,
     )
