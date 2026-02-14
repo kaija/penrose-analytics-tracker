@@ -1,0 +1,32 @@
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# GeoIP database files
+*.mmdb
+*.dat
+GeoLite2-*.mmdb
+GeoIP2-*.mmdb
+
+# Local configuration files
+config.yaml
+config.local.yaml
+*.local.yaml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+# Log files
+*.log

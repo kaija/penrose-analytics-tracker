@@ -1,0 +1,38 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+*.pdb
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+DOCKER.md
+GRACEFUL_SHUTDOWN.md
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local data
+data/
+localstack-data/
+
+# Config files (will be mounted)
+config.yaml
+
+# Test files
+tests/
+
+# Logs
+*.log
